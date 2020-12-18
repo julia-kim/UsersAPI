@@ -37,7 +37,7 @@ public class UserController {
 	public ResponseEntity<Optional<User>> getUserById(@PathVariable(value = "id") Long id) {
 		Optional<User> user = userRepository.findById(id);
 		if (!user.isPresent()) {
-			return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<>(user, HttpStatus.OK);
 	}
