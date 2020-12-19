@@ -19,21 +19,43 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 public class SwaggerConfig {                                    
     @Bean
-    public Docket api() { 
+    public Docket apiV1() { 
         return new Docket(DocumentationType.SWAGGER_2)  
-        .select()                                  
-        // .apis(RequestHandlerSelectors.any())  
-        .apis(RequestHandlerSelectors.basePackage("com.tts.usersapi")) 
-        .paths(PathSelectors.any())                          
-        .build()  
-        .apiInfo(buildApiInfo());
+        .groupName("Version 1")
+          .select()                                  
+          .apis(RequestHandlerSelectors.basePackage("com.tts.usersapi")) 
+          .paths(PathSelectors.ant("/v1/**"))                       
+          .build()  
+          .apiInfo(buildApiInfoV1());
     }
     
-    private ApiInfo buildApiInfo() {
+    private ApiInfo buildApiInfoV1() {
         return new ApiInfoBuilder()
             .title("Users API")
             .description("REST API for interacting with users")
             .version("1.0.0")
+            .contact(new Contact("Developer Name", "website.com", "developer@website.com"))
+            .license("Apache License Version 2.0")
+            .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
+            .build();
+    }
+    
+    @Bean
+    public Docket apiv2() { 
+        return new Docket(DocumentationType.SWAGGER_2)
+        .groupName("Version 2")
+	      .select()                                  
+	      .apis(RequestHandlerSelectors.basePackage("com.tts.usersapi"))  
+	      .paths(PathSelectors.ant("/v2/**"))                          
+	      .build()
+	      .apiInfo(buildApiInfoV2());
+    }
+    
+    private ApiInfo buildApiInfoV2() {
+        return new ApiInfoBuilder()
+            .title("Users API")
+            .description("REST API for interacting with users")
+            .version("2.0.0")
             .contact(new Contact("Developer Name", "website.com", "developer@website.com"))
             .license("Apache License Version 2.0")
             .licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
@@ -46,4 +68,5 @@ public class SwaggerConfig {
             .docExpansion(DocExpansion.FULL) // have all the endpoints appear expanded by default
             .build();
     }
+   
 }
