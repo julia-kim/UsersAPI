@@ -20,11 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tts.usersapi.model.User;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
+@Api(value = "users", description = "Operations pertaining to users")
 @RestController
 public class UserController {
 	@Autowired
 	private UserRepository userRepository;
 
+	@ApiOperation(value = "Get all users", response = User.class, responseContainer = "List")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved all users") })
 	@GetMapping("/users")
 	public ResponseEntity<List<User>> getUsers(@RequestParam(value = "state", required = false) String state) {
 		if (state != null) {
@@ -33,6 +41,9 @@ public class UserController {
 		return new ResponseEntity<>((List<User>) userRepository.findAll(), HttpStatus.OK);
 	}
 
+	@ApiOperation(value = "Get user by id", response = User.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved user with specified id"),
+			@ApiResponse(code = 404, message = "User with specified id does not exist") })
 	@GetMapping("/users/{id}")
 	public ResponseEntity<Optional<User>> getUserById(@PathVariable(value = "id") Long id) {
 		Optional<User> user = userRepository.findById(id);
@@ -42,15 +53,23 @@ public class UserController {
 		return new ResponseEntity<>(user, HttpStatus.OK);
 	}
 
+	@ApiOperation(value = "Create a new user")
+	@ApiResponses(value = { @ApiResponse(code = 201, message = "Successfully created a new user"),
+			@ApiResponse(code = 400, message = "There was an error with your request") })
 	@PostMapping("/users")
 	public ResponseEntity<Void> createUser(@RequestBody @Valid User user, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
+			// this doesn't work with Postman for some reason :/
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		userRepository.save(user);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
+	@ApiOperation(value = "Update properties for an existing user")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully updated user information"),
+			@ApiResponse(code = 400, message = "There was an error with the request and user was not updated"),
+			@ApiResponse(code = 404, message = "Could not find user with specified id") })
 	@PutMapping("/users/{id}")
 	public ResponseEntity<Void> updateUser(@PathVariable(value = "id") Long id, @RequestBody @Valid User user,
 			BindingResult bindingResult) {
@@ -65,6 +84,9 @@ public class UserController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	@ApiOperation(value = "Delete a user", response = Void.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully deleted user"),
+			@ApiResponse(code = 404, message = "User with specified id does not exist") })
 	@DeleteMapping("/users/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable(value = "id") Long id) {
 		if (userRepository.findById(id) == null) {
