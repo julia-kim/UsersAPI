@@ -71,14 +71,14 @@ public class UserControllerV2 {
 
 	@ApiOperation(value = "Update properties for an existing user")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully updated user information"),
-			@ApiResponse(code = 400, message = "You are not authorized to update this user"),
+			@ApiResponse(code = 400, message = "There was an error with the request and user was not updated"),
 			@ApiResponse(code = 404, message = "Could not find user with specified id") })
 	@PutMapping("/users/{id}")
 	public ResponseEntity<Void> updateUser(@PathVariable(value = "id") Long id, @RequestBody @Valid User user,
 			BindingResult bindingResult) {
-		if (userRepository.findById(id) == null) {
-			bindingResult.rejectValue("id", "error.id", "User with given ID does not exist");
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		Optional<User> realUser = userRepository.findById(id);
+		if (!realUser.isPresent()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
 		}
 		if (bindingResult.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

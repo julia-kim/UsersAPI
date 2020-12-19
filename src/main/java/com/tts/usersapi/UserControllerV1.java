@@ -61,7 +61,6 @@ public class UserControllerV1 {
 	@PostMapping("/users")
 	public ResponseEntity<Void> createUser(@RequestBody @Valid User user, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
-			// this doesn't work with Postman for some reason :/
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		userRepository.save(user);
@@ -75,9 +74,9 @@ public class UserControllerV1 {
 	@PutMapping("/users/{id}")
 	public ResponseEntity<Void> updateUser(@PathVariable(value = "id") Long id, @RequestBody @Valid User user,
 			BindingResult bindingResult) {
-		if (userRepository.findById(id) == null) {
-			bindingResult.rejectValue("id", "error.id", "User with given ID does not exist");
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		Optional<User> realUser = userRepository.findById(id);
+		if (!realUser.isPresent()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
 		}
 		if (bindingResult.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -88,7 +87,7 @@ public class UserControllerV1 {
 
 	@ApiOperation(value = "Delete a user", response = Void.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully deleted user"),
-			@ApiResponse(code = 404, message = "User with specified id does not exist") })
+			@ApiResponse(code = 404, message = "User with given id does not exist") })
 	@DeleteMapping("/users/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable(value = "id") Long id) {
 		if (userRepository.findById(id) == null) {
