@@ -92,8 +92,9 @@ public class UserControllerV2 {
 			@ApiResponse(code = 404, message = "User with specified id does not exist") })
 	@DeleteMapping("/users/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable(value = "id") Long id) {
-		if (userRepository.findById(id) == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		Optional<User> realUser = userRepository.findById(id);
+		if (!realUser.isPresent()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
 		}
 		userRepository.deleteById(id);
 		return new ResponseEntity<>(HttpStatus.OK);
